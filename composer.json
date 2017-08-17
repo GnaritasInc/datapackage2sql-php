@@ -1,0 +1,10 @@
+{
+    "name": "gnaritasinc/datapackage2sql",
+    "description": "PHP library for generating SQL from data packages.",
+    "license": "MIT",    
+    "autoload": {
+        "psr-4": {
+            "gnaritasinc\\datapackage2sql\\": "src/"
+        }
+    }
+}
