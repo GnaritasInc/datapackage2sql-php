@@ -9,5 +9,12 @@
     },
     "require": {
         "frictionlessdata/datapackage": "^0.1.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7",
+        "sunaryohadi/ezsql-mysqli": "^1.2"
+    },
+    "scripts": {
+        "test":"phpunit tests"
     }
 }

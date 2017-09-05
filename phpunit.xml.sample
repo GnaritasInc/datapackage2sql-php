@@ -1,0 +1,10 @@
+<phpunit bootstrap="tests/autoload.php">
+	<php>
+		<!-- Replace with your info and save as "phpunit.xml" -->
+		<const name="DB_HOST" value="localhost"/>
+		<const name="DB_SCHEMA" value="dbname"/>
+		<const name="DB_USER" value="dbuser"/>
+		<const name="DB_PASS" value="dbpass"/>
+		<const name="DB_ENCODING" value="utf8"/>
+	</php>
+</phpunit>
