@@ -21,7 +21,7 @@ class PDOSQLGeneratorTest extends BaseTestCase
 
     protected function setUp ()
     {
-        $this->sqlGenerator = new PDOSQLGenerator(self::$dbh, "test_");
+        $this->sqlGenerator = new PDOSQLGenerator(self::$dbh, $this->tablePrefix);
     }
 
 }

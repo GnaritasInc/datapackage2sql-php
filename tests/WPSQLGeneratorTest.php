@@ -21,6 +21,6 @@ class WPSQLGeneratorTest extends BaseTestCase
 
     protected function setUp ()
     {
-        $this->sqlGenerator = new WPSQLGenerator(self::$dbh, "test_");
+        $this->sqlGenerator = new WPSQLGenerator(self::$dbh, $this->tablePrefix);
     }
 }
