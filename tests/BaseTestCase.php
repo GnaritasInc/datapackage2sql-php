@@ -10,18 +10,33 @@ class BaseTestCase extends TestCase
 {
 
     protected $tablePrefix = "test_";
-    protected $fixtureDir;
-    protected $resourceDir;
-
-    public function __construct ()
-    {
-        $this->fixtureDir = dirname(__FILE__) . "/fixtures";
-        $this->resourceDir = $this->fixtureDir . "/resources";
-    }
    
-    public function testForeignKey ()
+    /**
+     *  @dataProvider resourceProvider
+     */
+    public function testGetTableSQL ($baseFilename)
     {
-        $this->checkResourceSQL("foreign-key");
+        $resourceDir = dirname(__FILE__)."/fixtures/resources";
+        $sql = $this->getResourceTableSQL($resourceDir."/$baseFilename.json");
+        $this->assertSqlEqualsFile($resourceDir."/$baseFilename.sql", $sql);        
+    }
+
+    public function resourceProvider () 
+    {
+       
+        $resourceFiles = array();
+        $dh = opendir(__DIR__."/fixtures/resources/");
+        while(false !== ($entry = readdir($dh))) {
+            if ($entry != "." && $entry != "..") {
+                $baseFilename = substr($entry, 0, strpos($entry, '.'));
+                if (!array_key_exists($baseFilename, $resourceFiles)) {
+                    $resourceFiles[$baseFilename] = array($baseFilename);
+                }
+            }
+        }
+
+        return $resourceFiles;
+        
     }
 
     public function testMalformedIdentifier () 
@@ -30,13 +45,7 @@ class BaseTestCase extends TestCase
         $descriptor = array("name"=>"Bad table ``` name");
         $resource = new MockResource(json_encode($descriptor));
         $this->sqlGenerator->getTableSQL($resource);
-    }
-
-    protected function checkResourceSQL ($baseFilename)
-    {
-        $sql = $this->getResourceTableSQL($this->resourceDir."/$baseFilename.json");
-        $this->assertSqlEqualsFile($this->resourceDir."/$baseFilename.sql", $sql);        
-    }
+    }    
 
     protected function assertSqlEqualsFile ($expectedFilename, $actualSql)
     {
