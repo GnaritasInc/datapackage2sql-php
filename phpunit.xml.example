@@ -1,4 +1,4 @@
-<phpunit bootstrap="tests/autoload.php">
+<phpunit bootstrap="tests/bootstrap.php" convertNoticesToExceptions="false">
 	<php>
 		<!-- Replace with your info and save as "phpunit.xml" -->
 		<const name="DB_HOST" value="localhost"/>

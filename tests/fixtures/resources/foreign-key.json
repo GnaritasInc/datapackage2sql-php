@@ -1,0 +1,32 @@
+ {
+    "name": "table_with_foreign_key",
+    "path": "dummy.csv",
+    "format": "csv",
+    "mediatype": "text\/csv",
+    "schema": {
+        "primaryKey": "id",
+        "fields": [
+            {
+                "name": "id",
+                "type": "integer"
+            },
+            {
+                "name": "foreign_key_col",
+                "type": "integer"
+            },
+            {
+                "name": "accessibility",
+                "type": "string"
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fields": "foreign_key_col",
+                "reference": {
+                    "resource": "referenced_table",
+                    "fields": "referenced_col"
+                }
+            }
+        ]
+    }
+}
