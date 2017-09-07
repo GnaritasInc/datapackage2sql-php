@@ -2,6 +2,8 @@
 
 namespace gnaritasinc\datapackage2sql;
 
+use gnaritasinc\datapackage2sql\Exceptions\MalformedIdentifierException;
+
 abstract class BaseSQLGenerator
 {
     public static $MAX_KEY_LEN = 255;
@@ -184,7 +186,9 @@ abstract class BaseSQLGenerator
 
     protected function validateIdentifier ($col) 
     {
-        // throw an exception if invalid
+        if (preg_match('/[^0-9A-Za-z_-]/', $col)) {
+            throw new MalformedIdentifierException("Invalid identifier: '$col'. Use only letters, numbers, underscores or hyphens in table or column names.");
+        }
     }
 
     abstract protected function quoteArray ($arr); // for enum column values

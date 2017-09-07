@@ -4,6 +4,7 @@ namespace gnaritasinc\datapackage2sql\tests;
 
 use PHPUnit\Framework\TestCase;
 use gnaritasinc\datapackage2sql\tests\MockResource;
+use gnaritasinc\datapackage2sql\Exceptions\MalformedIdentifierException;
 
 class BaseTestCase extends TestCase
 {
@@ -21,6 +22,14 @@ class BaseTestCase extends TestCase
     public function testForeignKey ()
     {
         $this->checkResourceSQL("foreign-key");
+    }
+
+    public function testMalformedIdentifier () 
+    {
+        $this->expectException(MalformedIdentifierException::class);
+        $descriptor = array("name"=>"Bad table ``` name");
+        $resource = new MockResource(json_encode($descriptor));
+        $this->sqlGenerator->getTableSQL($resource);
     }
 
     protected function checkResourceSQL ($baseFilename)
