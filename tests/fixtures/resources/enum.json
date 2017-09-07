@@ -1,0 +1,22 @@
+ {
+    "name": "table_with_enum_column",
+    "path": "dummy.csv",
+    "format": "csv",
+    "mediatype": "text\/csv",
+    "schema": {
+        "primaryKey": "id",
+        "fields": [
+            {
+                "name": "id",
+                "type": "integer"
+            },            
+            {
+                "name": "enum_col",
+                "type": "string",
+                "constraints": {
+                    "enum": ["Smith", "Johnson", "O'Reilly"]
+                }
+            }
+        ]
+    }
+}
