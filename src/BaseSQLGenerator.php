@@ -10,16 +10,17 @@ abstract class BaseSQLGenerator
 
     protected $tablePrefix = "";
     protected $dbh;
-    
-    public function __construct (&$dbh, $tablePrefix="") 
+
+    public function __construct (&$dbh, $tablePrefix="")
     {
         $this->dbh = $dbh;
         $this->tablePrefix = $tablePrefix;
     }
 
-    public function getTableSQL ($resource) 
+    public function getTableSQL ($resource)
     {
-        
+
+
         $output = "";
         $output .= "create table " . $this->getTableRef($resource->descriptor()->name) . " (";
         $output .= "\n\t" . implode($this->getColumnDefs($resource->descriptor()->schema), ",\n\t");
@@ -28,15 +29,15 @@ abstract class BaseSQLGenerator
         return $output;
     }
 
-    protected function getTableRef ($name) 
+    protected function getTableRef ($name)
     {
-        return $this->quoteNames($this->tablePrefix . $name); 
+        return $this->quoteNames($this->tablePrefix . $name);
     }
 
-    protected function getFieldConstraints ($field) 
+    protected function getFieldConstraints ($field)
     {
         $constraints = array();
-        if ($field->constraints) {
+        if (!property_exists ($field , "constraints" )) {
             return "";
         }
         if ($field->constraints->required) {
@@ -49,7 +50,7 @@ abstract class BaseSQLGenerator
         return implode(" ", $constraints);
     }
 
-    protected function sqlDataType ($field, $schema) 
+    protected function sqlDataType ($field, $schema)
     {
         $types = array(
             "string" =>"text",
@@ -68,26 +69,26 @@ abstract class BaseSQLGenerator
         if ($field->type == "string" && $this->isKeyColumn($field, $schema)) {
             return sprintf("varchar(%d)", self::$MAX_KEY_LEN);
         }
-        
-        if($field->type == "string" && $field->constraints && in_array("maxLength", $field->constraints)) {     
+
+        if($field->type == "string" && property_exists ($field , "constraints" ) && in_array("maxLength", $field->constraints)) {
             return sprintf("varchar(%d)", $field->constraints->maxLength);
         }
 
         return array_key_exists($field->type, $types) ? $types[$field->type] : "text";
     }
-    
 
-    protected function isKeyColumn ($field, $schema) 
+
+    protected function isKeyColumn ($field, $schema)
     {
         return $this->isPrimaryKey($field, $schema) || $this->isForeignKey($field, $schema) || $this->isUniqueKey($field);
     }
 
-    protected function isUniqueKey ($field) 
+    protected function isUniqueKey ($field)
     {
-        return $field->constraints && $field->constraints->unique;
+        return property_exists ($field , "constraints" ) && $field->constraints->unique;
     }
 
-    protected function isPrimaryKey ($field, $schema) 
+    protected function isPrimaryKey ($field, $schema)
     {
         if (!$schema->primaryKey) return false;
         $fieldName = $field->name;
@@ -95,9 +96,9 @@ abstract class BaseSQLGenerator
         return in_array($fieldName, $primaryKeys);
     }
 
-    protected function isForeignKey ($field, $schema) 
+    protected function isForeignKey ($field, $schema)
     {
-        if (!$schema->foreignKeys) return false;
+        if (!property_exists ($schema , "foreignKeys" )) return false;
         $fieldName = $field->name;
         $fkCols = array();
         foreach($schema->foreignKeys as $fk) {
@@ -107,16 +108,16 @@ abstract class BaseSQLGenerator
         return in_array($fieldName, $fkCols);
     }
 
-    protected function isEnum ($field) 
+    protected function isEnum ($field)
     {
-        return ($field->constraints && $field->constraints->enum && count($field->constraints->enum)) ? true : false;
+        return (property_exists ($field , "constraints" ) && $field->constraints->enum && count($field->constraints->enum)) ? true : false;
     }
 
-    function getEnumDef ($field) {  
-        return " enum(". $this->quoteArray($field->constraints->enum) .")"; 
-    }    
+    function getEnumDef ($field) {
+        return " enum(". $this->quoteArray($field->constraints->enum) .")";
+    }
 
-    protected function getColumnDefs  ($schema) 
+    protected function getColumnDefs  ($schema)
     {
         $defs = array();
         foreach($schema->fields as $field) {
@@ -131,14 +132,14 @@ abstract class BaseSQLGenerator
         }
 
         if ($schema->primaryKey) {
-            $cols = $this->getArray($schema->primaryKey);       
+            $cols = $this->getArray($schema->primaryKey);
             $defs[] = "primary key (". $this->quoteNames($cols) .")";
         }
 
-        if ($schema->foreignKeys) {
+        if (property_exists ($schema , "foreignKeys" )) {
             foreach($schema->foreignKeys as $fk) {
                 $fkCols = $this->getArray($fk->fields);
-                $def = "foreign key(". $this->quoteNames($fkCols) .")";         
+                $def = "foreign key(". $this->quoteNames($fkCols) .")";
                 $def .= " references " . $this->getTableRef($fk->reference->resource);
                 $def .= " (" . $this->quoteNames($this->getArray($fk->reference->fields)) . ")";
                 $defs[] = $def;
@@ -148,12 +149,12 @@ abstract class BaseSQLGenerator
         return $defs;
     }
 
-    protected function getArray ($val) 
+    protected function getArray ($val)
     {
         return is_array($val) ? $val : array($val);
     }
 
-    protected function quoteNames ($cols) 
+    protected function quoteNames ($cols)
     {
         $cols = $this->getArray($cols);
         $this->validateColNames($cols);
@@ -167,12 +168,12 @@ abstract class BaseSQLGenerator
         return vsprintf($format, $quotedCols);
     }
 
-    protected function getFormatString ($format, $length, $delimiter=", ") 
+    protected function getFormatString ($format, $length, $delimiter=", ")
     {
         return implode($delimiter, array_fill(0, $length, $format));
     }
 
-    protected function validateColNames ($cols) 
+    protected function validateColNames ($cols)
     {
         foreach ($cols as $col) {
             $this->validateIdentifier($col);
@@ -184,7 +185,7 @@ abstract class BaseSQLGenerator
         return "`". str_replace("`", "``", $field). "`";
     }
 
-    protected function validateIdentifier ($col) 
+    protected function validateIdentifier ($col)
     {
         if (preg_match('/[^0-9A-Za-z_-]/', $col)) {
             throw new MalformedIdentifierException("Invalid identifier: '$col'. Use only letters, numbers, underscores or hyphens in table or column names.");
